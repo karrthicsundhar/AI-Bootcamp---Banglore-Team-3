@@ -1,5 +1,5 @@
 # AI-Bootcamp---Banglore-Team-3
-# 🛡️ ARGUS AI
+#  ARGUS AI
 
 Adaptive learning platform is designed to deliver a personalized and engaging learning experience for students. It combines intelligent learning tools, progress tracking, and an interactive interface to help students understand concepts more effectively while supporting future classroom integration.
 
