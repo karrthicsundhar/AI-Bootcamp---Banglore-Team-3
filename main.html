@@ -1,0 +1,1091 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Argus Adaptive Learning</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;600;700&family=Inter:wght@400;500;600;700;800;900&family=JetBrains+Mono:wght@400;600&display=swap" rel="stylesheet">
+<style>
+*{box-sizing:border-box;margin:0;padding:0}
+body{font-family:'Inter',-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;background:linear-gradient(135deg,#f0f3ff 0%,#f5f0ff 100%);color:#1f2937;line-height:1.5}
+h1,h2,h3,h4,h5,h6{font-family:'Space Grotesk',sans-serif;font-weight:700;letter-spacing:-0.5px}
+button,input,textarea,select{font:inherit}
+button{border:0;cursor:pointer;transition:all 0.2s ease}
+.hidden{display:none!important}
+
+.login{min-height:100vh;display:grid;place-items:center;padding:28px;background:radial-gradient(circle at 12% 12%,rgba(79,70,229,.18),transparent 28%),radial-gradient(circle at 88% 18%,rgba(14,165,233,.16),transparent 30%),linear-gradient(135deg,#f8fbff,#eef2ff 48%,#f7f0ff)}
+.login-card{width:min(1160px,100%);display:grid;grid-template-columns:1.18fr 440px;background:rgba(255,255,255,.92);border-radius:32px;overflow:hidden;box-shadow:0 28px 90px rgba(30,41,59,.18);border:1px solid rgba(99,102,241,.18);backdrop-filter:blur(18px)}
+.login-hero{position:relative;min-height:620px;padding:58px;display:flex;flex-direction:column;justify-content:space-between;background:linear-gradient(135deg,#312e81 0%,#4f46e5 48%,#7c3aed 100%);color:white;overflow:hidden}
+.login-hero:before{content:"";position:absolute;inset:auto -90px -130px auto;width:360px;height:360px;border-radius:50%;background:rgba(255,255,255,.12)}
+.login-hero:after{content:"";position:absolute;inset:44px auto auto 54%;width:190px;height:190px;border-radius:42px;border:1px solid rgba(255,255,255,.2);transform:rotate(18deg)}
+.login-hero-copy{position:relative;z-index:1}
+.login-hero h1{font-size:68px;line-height:1.02;margin-bottom:18px;letter-spacing:-1.4px}
+.login-hero p{font-size:18px;line-height:1.65;color:#ede9fe;max-width:560px;opacity:0.96}
+.auth{padding:42px;display:flex;flex-direction:column;justify-content:center;gap:18px;background:linear-gradient(180deg,#fff,#fbfdff)}
+.auth-title{display:grid;gap:8px;margin-bottom:4px}
+.auth-title h2{font-size:30px;color:#111827}.auth-title p{font-size:14px;color:#6b7280;line-height:1.5}
+.tabs{display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-bottom:2px}
+.tab,.ghost{min-height:44px;border-radius:18px;background:#f3f4f6;color:#6b7280;font-weight:600;padding:0 16px;font-size:14px;transition:all 0.2s ease}
+.tab.active,.primary{min-height:44px;border-radius:18px;background:linear-gradient(135deg,#4f46e5,#7c3aed);color:white;font-weight:600;padding:0 18px;font-size:14px}
+.tab:hover:not(.active){background:#e5e7eb}
+.primary:hover{transform:translateY(-2px);box-shadow:0 8px 20px rgba(79,70,229,0.3)}
+
+.field{display:grid;gap:8px}
+.role-card{border:2px solid #e5e7eb;border-radius:22px;padding:14px;background:#f9fafb;display:grid;gap:10px}
+.role-card label{display:flex;align-items:center;justify-content:space-between;gap:10px}
+.role-card select{background:white}
+.role-hint{font-size:12px;color:#6b7280;line-height:1.45;text-transform:none;letter-spacing:0;font-weight:600}
+.auth-note{display:flex;gap:10px;align-items:flex-start;border:1px solid #e0e7ff;background:#f5f7ff;border-radius:18px;padding:12px;color:#4b5563;font-size:13px;line-height:1.45}
+label,.eyebrow{font-size:12px;text-transform:uppercase;letter-spacing:1px;color:#6b7280;font-weight:700}
+input,textarea,select{width:100%;border:2px solid #e5e7eb;border-radius:18px;padding:12px 14px;background:#f9fafb;outline:none;font-size:14px;transition:border-color 0.2s}
+input:focus,textarea:focus,select:focus{border-color:#4f46e5}
+textarea{min-height:88px;resize:vertical;line-height:1.5}
+.error{min-height:20px;color:#dc2626;font-size:13px;font-weight:600}
+
+.app{min-height:100vh;display:grid;grid-template-columns:280px 1fr}
+.sidebar{background:white;border-right:1px solid #e5e7eb;padding:32px 20px;display:flex;flex-direction:column;gap:28px;overflow-y:auto}
+.logo-row{display:flex;align-items:center;gap:14px;padding:0 8px;margin-bottom:8px}
+.logo{width:48px;height:48px;border-radius:16px;display:grid;place-items:center;background:linear-gradient(135deg,#4f46e5,#7c3aed);color:white;font-weight:900;font-size:20px;font-family:'Space Grotesk',sans-serif}
+.brand strong{display:block;color:#1f2937;font-family:'Space Grotesk';font-size:16px;font-weight:700}
+.brand span{font-size:12px;color:#9ca3af;font-weight:500}
+
+.nav{display:grid;gap:6px}
+.nav button{height:48px;border-radius:20px;background:transparent;color:#6b7280;text-align:left;padding:0 16px;font-weight:600;font-size:14px;border:2px solid transparent}
+.nav button.active{background:linear-gradient(135deg,rgba(79,70,229,0.1),rgba(124,58,237,0.1));color:#4f46e5;border-color:rgba(79,70,229,0.2)}
+.nav button:hover:not(.active){background:#f3f4f6}
+
+.page{display:grid;grid-template-rows:76px 1fr;min-width:0}
+.topbar{background:white;border-bottom:2px solid #f0f0f0;display:flex;align-items:center;justify-content:space-between;padding:0 32px}
+.greeting{display:flex;align-items:center;gap:14px;font-weight:700;color:#1f2937;font-size:15px}
+.avatar{width:40px;height:40px;border-radius:16px;display:grid;place-items:center;background:linear-gradient(135deg,#ede9fe,#e9d5ff);color:#7c3aed;font-weight:700;font-size:14px}
+.present{font-size:12px;background:#dcfce7;color:#16a34a;border-radius:999px;padding:6px 12px;font-weight:600}
+
+.top-actions{display:flex;align-items:center;gap:8px}
+.lens,.coins,.iconbtn,.logout{height:40px;border-radius:999px;background:#f3f4f6;color:#374151;font-weight:600;padding:0 16px;font-size:14px;border:2px solid transparent;transition:all 0.2s}
+.coins{background:linear-gradient(135deg,#f97316,#fb923c);color:white}
+.lens{border-color:#3b82f6;color:#3b82f6;background:transparent}
+.lens:hover,.coins:hover,.iconbtn:hover,.logout:hover{transform:translateY(-2px);box-shadow:0 4px 12px rgba(0,0,0,0.1)}
+
+.workspace{display:grid;grid-template-columns:1fr 380px;gap:28px;padding:32px;min-width:0}
+.main{min-width:0}
+.view{display:none}.view.active{display:block}
+
+.section-head{display:flex;align-items:center;justify-content:space-between;margin-bottom:24px;gap:16px;flex-wrap:wrap}
+.section-head h2{font-size:28px;color:#111827;font-weight:700}
+.viewall{color:#4f46e5;font-weight:600;background:transparent;font-size:14px;padding:6px 0;border:none}
+.viewall:hover{opacity:0.8}
+
+.cards{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:24px;margin-bottom:28px}
+.card{background:white;border:1.5px solid #e5e7eb;border-radius:20px;box-shadow:0 4px 12px rgba(0,0,0,0.04);padding:20px;transition:all 0.3s ease}
+.card:hover{border-color:#d1d5db;box-shadow:0 12px 28px rgba(0,0,0,0.08)}
+
+.course-card{min-height:240px;display:flex;flex-direction:column;justify-content:space-between}
+.subject-top{display:flex;gap:14px;align-items:center}
+.subject-icon{width:64px;height:64px;border-radius:18px;display:grid;place-items:center;color:white;font-weight:700;font-size:24px;font-family:'Space Grotesk';background:#10b981}
+.orange{background:linear-gradient(135deg,#f97316,#fb923c)!important}.green{background:linear-gradient(135deg,#10b981,#34d399)!important}.blue{background:linear-gradient(135deg,#3b82f6,#60a5fa)!important}.dark{background:linear-gradient(135deg,#334155,#475569)!important}.purple{background:linear-gradient(135deg,#7c3aed,#a78bfa)!important}
+
+.card h3{font-size:18px;margin-bottom:6px;color:#1f2937}.small{font-size:13px;color:#9ca3af;line-height:1.5}
+.tasks{display:grid;gap:12px;margin-top:16px}.task{font-size:13px;color:#6b7280;display:flex;gap:8px;align-items:center}.task b{color:#10b981;font-weight:700}
+.card-foot{display:flex;border-top:1.5px solid #e5e7eb;margin:14px -20px -20px;padding:14px 20px;gap:12px;color:#6b7280;font-size:13px;font-weight:600}
+.card-foot button{margin:0;padding:6px 12px}
+
+.podcast-grid,.two-col{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:24px}
+.podcast{display:flex;gap:16px;align-items:flex-start}.thumb{width:90px;height:90px;border-radius:16px;background:linear-gradient(135deg,#f97316,#fb923c);color:white;display:grid;place-items:center;font-weight:700;font-size:12px;flex-shrink:0;font-family:'Space Grotesk'}
+.tag{display:inline-block;background:#fef3c7;color:#d97706;border-radius:999px;padding:6px 12px;font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:0.5px}
+.play{margin-top:10px;color:#4f46e5;font-weight:600;background:transparent;font-size:13px;padding:0;border:none}
+
+.right{display:flex;flex-direction:column;gap:24px}
+.ai-panel,.space{background:white;border:1.5px solid #e5e7eb;border-radius:20px;box-shadow:0 4px 12px rgba(0,0,0,0.04);padding:20px}
+.ai-head{display:flex;align-items:center;justify-content:space-between;margin-bottom:16px}
+.ai-title{display:flex;align-items:center;gap:10px;font-weight:700;color:#1f2937}
+.ai-dot{width:36px;height:36px;border-radius:50%;display:grid;place-items:center;background:linear-gradient(135deg,#4f46e5,#7c3aed);color:white;font-weight:700;font-size:18px}
+
+/* Chat list: flex-column so oldest at top, newest at bottom */
+.chat-list{display:flex;flex-direction:column;gap:12px;max-height:380px;overflow-y:auto;margin-bottom:14px}
+.bubble{padding:12px 14px;border-radius:16px;font-size:13px;line-height:1.5}
+.bubble.user{background:linear-gradient(135deg,#4f46e5,#7c3aed);color:white;margin-left:24px;border-radius:16px 16px 4px 16px}
+.bubble.ai{background:#f3f4f6;color:#374151;margin-right:24px;border-radius:16px 16px 16px 4px}
+.bubble small{display:block;margin-top:6px;opacity:0.7;font-size:11px}
+.bubble.loading{animation:pulse 1.5s ease-in-out infinite}
+@keyframes pulse{0%,100%{opacity:0.6}50%{opacity:1}}
+
+.chat-input{display:grid;grid-template-columns:1fr 42px;gap:8px;background:#f9fafb;border:1.5px solid #e5e7eb;border-radius:999px;padding:6px;transition:border-color 0.2s}
+.chat-input:focus-within{border-color:#4f46e5;box-shadow:0 0 0 3px rgba(79,70,229,0.1)}
+.chat-input input{border:0;background:transparent;padding:8px 12px;font-size:13px}
+.send{width:42px;height:42px;border-radius:50%;background:linear-gradient(135deg,#4f46e5,#7c3aed);color:white;font-weight:700;display:grid;place-items:center;transition:all 0.2s}
+.send:hover{transform:scale(1.05)}
+
+.space-box{display:flex;gap:14px;align-items:center;margin-top:14px}.rocket{width:72px;height:72px;border-radius:16px;background:linear-gradient(135deg,#ede9fe,#e9d5ff);color:#7c3aed;display:grid;place-items:center;font-size:32px;flex-shrink:0}
+
+.chapter-list{display:grid;gap:10px}.chapter-btn{background:white;border:2px solid #e5e7eb;border-radius:18px;text-align:left;padding:14px;font-weight:600;color:#6b7280;transition:all 0.2s;font-size:14px}
+.chapter-btn:hover{border-color:#d1d5db;background:#f9fafb}
+.chapter-btn.active{background:linear-gradient(135deg,rgba(79,70,229,0.1),rgba(124,58,237,0.1));border-color:#4f46e5;color:#4f46e5}
+
+.study-text{white-space:pre-line;color:#6b7280;line-height:1.7;font-size:14px;font-family:'Inter',sans-serif}
+.question{min-height:140px;display:grid;place-items:center;text-align:center;padding:24px;border-radius:20px;background:linear-gradient(135deg,#eef2ff,#ecfeff);color:#3730a3;font-size:32px;font-weight:700;font-family:'Space Grotesk';line-height:1.4}
+
+.answer-row{display:grid;grid-template-columns:1fr 130px;gap:12px;margin-top:16px}
+.feedback{min-height:22px;margin-top:12px;font-weight:700;color:#16a34a;font-size:14px}.feedback.bad{color:#dc2626}
+.metric strong{display:block;font-size:32px;color:#1f2937;font-family:'Space Grotesk'}.bar{height:8px;background:#e5e7eb;border-radius:99px;overflow:hidden;margin-top:12px}.bar div{height:100%;background:linear-gradient(90deg,#4f46e5,#7c3aed);width:0;transition:width 0.3s ease}
+
+.message-list{display:grid;gap:10px;max-height:320px;overflow-y:auto}.msg{background:#f9fafb;border:1.5px solid #e5e7eb;border-radius:16px;padding:12px;transition:all 0.2s}
+.msg:hover{border-color:#d1d5db}.msg strong{display:block;margin-bottom:4px;color:#1f2937}.msg small{color:#9ca3af}
+.notice-tools{display:flex;gap:10px;align-items:center;flex-wrap:wrap;margin-bottom:16px}
+.notice-pill{min-height:38px;border-radius:999px;background:#f3f4f6;color:#6b7280;font-weight:700;padding:0 14px;border:2px solid transparent}
+.notice-pill.active{background:#eef2ff;color:#4f46e5;border-color:#c7d2fe}
+.notice-grid{display:grid;gap:12px}
+.notice{display:grid;gap:8px;background:white;border:1.5px solid #e5e7eb;border-left:5px solid #94a3b8;border-radius:18px;padding:16px;box-shadow:0 4px 12px rgba(0,0,0,0.04)}
+.notice.urgent{border-left-color:#dc2626;background:#fff7f7}
+.notice.good{border-left-color:#2563eb;background:#f8fbff}
+.notice.unrelated{border-left-color:#9ca3af;background:#fafafa}
+.notice-top{display:flex;align-items:center;justify-content:space-between;gap:12px;flex-wrap:wrap}
+.notice-title{font-weight:800;color:#111827}
+.notice-badge{border-radius:999px;padding:5px 10px;font-size:11px;font-weight:800;text-transform:uppercase;letter-spacing:0.5px;background:#e5e7eb;color:#4b5563}
+.notice-badge.urgent{background:#fee2e2;color:#b91c1c}.notice-badge.good{background:#dbeafe;color:#1d4ed8}.notice-badge.unrelated{background:#e5e7eb;color:#4b5563}
+.notice-empty{background:#f9fafb;border:1.5px dashed #d1d5db;border-radius:18px;padding:24px;color:#6b7280;text-align:center}
+
+.toast{position:fixed;right:24px;bottom:24px;background:#1f2937;color:white;padding:14px 18px;border-radius:16px;box-shadow:0 16px 40px rgba(0,0,0,0.2);z-index:50;font-weight:600;animation:slideIn 0.3s ease}
+@keyframes slideIn{from{transform:translateX(400px);opacity:0}to{transform:translateX(0);opacity:1}}
+
+.modal{position:fixed;inset:0;background:rgba(0,0,0,0.5);display:none;place-items:center;z-index:60;padding:24px}.modal.open{display:grid}
+.modal-card{width:min(950px,100%);height:min(750px,90vh);background:white;border-radius:24px;padding:24px;display:grid;grid-template-rows:auto 1fr auto;box-shadow:0 25px 80px rgba(0,0,0,0.3);border:1.5px solid rgba(0,0,0,0.1)}
+/* Modal chat also column direction, newest at bottom */
+.modal-chat{overflow-y:auto;display:flex;flex-direction:column;gap:12px;padding:12px 0}
+
+.api-status{display:flex;align-items:center;gap:8px;font-size:12px;color:#6b7280;margin-bottom:12px}
+.api-status.connected{color:#10b981}
+.api-status.error{color:#dc2626}
+
+.teacher-app{min-height:100vh;background:#f4f7fb;display:grid;grid-template-rows:72px 1fr}
+.teacher-topbar{display:flex;align-items:center;justify-content:space-between;gap:16px;background:white;border-bottom:2px solid #eef2f7;padding:0 28px}
+.teacher-brand{display:flex;align-items:center;gap:12px;font-weight:800;color:#172033}
+.teacher-frame{width:100%;height:calc(100vh - 72px);border:0;background:#f4f7fb}
+.teacher-actions{display:flex;align-items:center;gap:10px}
+.teacher-chip{border-radius:999px;background:#eef2ff;color:#4f46e5;padding:8px 12px;font-size:13px;font-weight:800}
+@media(max-width:1200px){.workspace{grid-template-columns:1fr}.cards,.podcast-grid,.two-col{grid-template-columns:1fr}}
+@media(max-width:1100px){.app{grid-template-columns:1fr}.sidebar{display:none}.workspace{padding:24px}.cards,.podcast-grid,.two-col{grid-template-columns:1fr}}
+@media(max-width:768px){.login-card{grid-template-columns:1fr}.login-hero{min-height:auto;padding:32px}.login-hero h1{font-size:42px}.auth{padding:28px}}
+</style>
+</head>
+
+<body>
+<section class="login" id="loginScreen">
+  <div class="login-card">
+    <div class="login-hero">
+      <div class="login-hero-copy">
+        <h1>Argus</h1>
+        <p>Adaptive learning, teacher notifications, school-safe AI, rewards, chapters, and curriculum in one combined project file.</p>
+      </div>
+    </div>
+    <div class="auth">
+      <div class="auth-title">
+        <h2>Welcome Back</h2>
+        <p>Choose your portal and continue with the right dashboard.</p>
+      </div>
+      <div class="tabs"><button class="tab active" id="signinTab">Sign In</button><button class="tab" id="signupTab">Sign Up</button></div>
+      <div class="role-card"><label>Login Type<select id="roleSelect"><option value="student">Student Login</option><option value="teacher">Teacher Login</option></select></label><small class="role-hint" id="roleHint">Students can sign in or sign up. Teachers use password: teacher123</small></div>
+      <div class="field hidden" id="nameField"><label>Student Name</label><input id="nameInput"></div>
+      <div class="field"><label>Email</label><input id="emailInput" type="email"></div>
+      <div class="field"><label>Password</label><input id="passwordInput" type="password"></div>
+      <button class="primary" id="authButton">Enter Portal</button>
+      <div class="auth-note"><strong>Tip</strong><span>Use Student Login for the learning dashboard, or Teacher Login with password <b>teacher123</b>.</span></div>
+      <div class="error" id="authMessage"></div>
+    </div>
+  </div>
+</section>
+
+<div class="app hidden" id="app">
+  <aside class="sidebar">
+    <div class="logo-row"><div class="logo">A</div><div class="brand"><strong>Argus</strong><span>Learning Portal</span></div></div>
+    <nav class="nav">
+      <button class="active" data-view="dashboard">Dashboard</button>
+      <button data-view="adaptive">Adaptive Learning</button>
+      <button data-view="notifications">Notifications</button>
+      <button data-view="messages">Message Center</button>
+      <button data-view="notes">Class Notes</button>
+      <button data-view="curriculum">Curriculum</button>
+      <button data-view="courses">Courses</button>
+      <button data-view="space">Space Walk</button>
+      <button data-view="performance">Performance</button>
+      <button data-view="profile">Learner's Profile</button>
+      <button data-view="calendar">Calendar</button>
+      <button data-view="fees">Fees</button>
+      <button data-view="support">Help & Support</button>
+    </nav>
+  </aside>
+
+  <div class="page">
+    <header class="topbar">
+      <div class="greeting"><div class="avatar" id="topInitial">AJ</div><span id="helloText">Hi, Student</span><span class="present">● Present</span></div>
+      <div class="top-actions">
+        <button class="lens" id="lensBtn">⌕ Aspire Lens</button>
+        <button class="coins" id="coinsBtn">€ <span id="euroCount">70</span> Euros</button>
+        <button class="iconbtn" id="bellBtn">🔔 <span id="noticeCount">0</span></button>
+        <button class="logout" id="logoutButton">Log Out</button>
+      </div>
+    </header>
+
+    <main class="workspace">
+      <section class="main">
+        <div class="view active" id="dashboardView">
+          <div class="section-head"><h2>Learning Journey</h2><button class="viewall" id="viewAllBtn">View All</button></div>
+          <div class="cards" id="journeyCards"></div>
+          <div class="section-head"><h2>Podcasts <span class="tag">NEW</span></h2><button class="viewall" id="allSubjectsBtn">All Subjects⌄</button></div>
+          <div class="podcast-grid">
+            <div class="card podcast"><div class="thumb">DEMO</div><div><span class="tag">Social Science</span><h3>What is Democracy?</h3><p class="small">Quick concept audio</p><button class="play" data-toast="Playing Democracy podcast">▷ Play</button></div></div>
+            <div class="card podcast"><div class="thumb dark">CONST</div><div><span class="tag">Constitutional Design</span><h3>Constitution</h3><p class="small">Rights and duties</p><button class="play" data-toast="Playing Constitution podcast">▷ Play</button></div></div>
+          </div>
+        </div>
+
+        <div class="view" id="adaptiveView">
+          <div class="section-head"><h2>Adaptive Learning</h2><select id="subjectSelect"></select></div>
+          <div class="two-col">
+            <div>
+              <div class="card"><h3 id="activeSubjectTitle">Subject</h3><p class="small" id="activeChapterText">Chapter</p></div>
+              <div class="chapter-list" id="chapterButtons"></div>
+            </div>
+            <div>
+              <div class="card">
+                <div class="section-head"><h2 id="chapterTitle">Chapter</h2><span class="tag" id="levelTag">Level 1</span></div>
+                <p class="small" id="skillText">Skill</p>
+                <div class="question" id="questionText">Loading...</div>
+                <div class="answer-row"><input id="answerInput" placeholder="Type your answer"><button class="primary" id="submitAnswer">Submit</button></div>
+                <div class="feedback" id="feedbackText"></div>
+                <button class="ghost" id="skipQuestion" style="margin-top:10px;width:100%">Skip Question</button>
+                <button class="primary" id="explainBtn" style="margin-top:10px;width:100%">Ask Assistant To Explain</button>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <div class="view" id="messagesView">
+          <div class="section-head"><h2>Message Center</h2></div>
+          <div class="card"><textarea id="messageInput" placeholder="Send a message to teacher, student, or parent"></textarea><button class="primary" id="sendMessage" style="margin-top:10px">Send Message</button><button class="ghost" id="clearMessages" style="margin-top:10px">Clear Messages</button></div>
+          <div class="message-list" id="messageList" style="margin-top:16px"></div>
+        </div>
+
+        <div class="view" id="notificationsView">
+          <div class="section-head"><h2>Notifications</h2><button class="viewall" id="openSenderPage">Open Sender Page</button></div>
+          <div class="notice-tools">
+            <button class="notice-pill active" data-notice-filter="all">All</button>
+            <button class="notice-pill" data-notice-filter="urgent">Urgent</button>
+            <button class="notice-pill" data-notice-filter="good">Good to Know</button>
+            <button class="notice-pill" data-notice-filter="unrelated">Unrelated</button>
+            <button class="ghost" id="clearNotifications">Clear</button>
+          </div>
+          <div class="notice-grid" id="notificationList"></div>
+        </div>
+
+        <div class="view" id="notesView">
+          <div class="section-head"><h2>Class Notes</h2><button class="viewall" id="openAdaptiveFromNotes">Practice This Chapter</button></div>
+          <div class="card"><h3 id="studyHeading">Study Material</h3><div class="study-text" id="studyText"></div></div>
+          <div class="card" style="margin-top:16px"><label>Edit Study Material</label><textarea id="studyEditor"></textarea><button class="primary" id="saveStudy" style="margin-top:10px">Save Study</button><button class="ghost" id="resetStudy" style="margin-top:10px">Reset Study</button></div>
+        </div>
+
+        <div class="view" id="curriculumView">
+          <div class="section-head"><h2>Curriculum</h2><select id="curriculumFilter"></select></div>
+          <div class="cards" id="curriculumCards"></div>
+        </div>
+
+        <div class="view" id="coursesView">
+          <div class="section-head"><h2>Courses</h2></div>
+          <div class="cards" id="courseCards"></div>
+        </div>
+
+        <div class="view" id="spaceView">
+          <div class="section-head"><h2>Space Walk</h2></div>
+          <div class="card"><h3>Mission: Complete 5 Adaptive Questions</h3><p class="study-text">Earn 20 Euros by completing adaptive questions. Correct answers also earn Euros.</p><button class="primary" id="startMission" style="margin-top:12px">Start Mission</button></div>
+        </div>
+
+        <div class="view" id="performanceView">
+          <div class="section-head"><h2>Performance</h2><button class="ghost" id="resetProgress">Reset Chapter Progress</button></div>
+          <div class="cards">
+            <div class="card metric"><strong id="accuracyMetric">0%</strong><span>Accuracy</span><div class="bar"><div id="accuracyBar"></div></div></div>
+            <div class="card metric"><strong id="streakMetric">0</strong><span>Current streak</span><div class="bar"><div id="streakBar"></div></div></div>
+            <div class="card metric"><strong id="levelMetric">1</strong><span>Difficulty level</span><div class="bar"><div id="levelBar"></div></div></div>
+          </div>
+          <div class="card"><h3>Adaptive Log</h3><p class="study-text" id="systemLog">Start practicing to build your learning curve.</p></div>
+        </div>
+
+        <div class="view" id="profileView"><div class="section-head"><h2>Learner's Profile</h2></div><div class="card"><h3 id="profileName">Student</h3><p class="small" id="profileEmail">email</p><p class="study-text">Grade 9 learner. Adaptive system tracks chapter progress, accuracy, streak, rewards, and AI support history.</p></div></div>
+        <div class="view" id="calendarView"><div class="section-head"><h2>Calendar</h2></div><div class="cards" id="calendarCards"></div></div>
+        <div class="view" id="feesView"><div class="section-head"><h2>Fees</h2></div><div class="card"><h3>No Pending Fees</h3><p class="small">Demo status: all payments are clear.</p><button class="primary" id="downloadReceipt" style="margin-top:12px">Download Receipt</button></div></div>
+        <div class="view" id="supportView"><div class="section-head"><h2>Help &amp; Support</h2></div><div class="card"><h3>How it works</h3><p class="study-text">Choose a subject, open a chapter, read the notes, answer adaptive questions, and ask Assistant for school-safe explanations. Correct quick answers increase difficulty. Struggle lowers it and gives different easier questions.</p><button class="primary" id="contactSupport" style="margin-top:12px">Contact Support</button></div></div>
+      </section>
+
+      <aside class="right">
+        <div class="ai-panel">
+          <div class="api-status" id="apiStatus"><span>○</span> Connecting</div>
+          <div class="ai-head"><div class="ai-title"><div class="ai-dot">✦</div>School AI Assistant</div><div><button class="viewall" id="expandAI">Expand</button> <button class="viewall" id="newChat">New</button></div></div>
+          <div class="chat-list" id="chatList"></div>
+          <div class="chat-input"><input id="aiInput" placeholder="Ask a school question"><button class="send" id="askAI">➤</button></div>
+        </div>
+        <div class="space"><div class="section-head"><h2>Space Walk</h2><span class="tag">ⓘ</span></div><div class="space-box"><div class="rocket">🚀</div><p class="small">Practice resources to begin your journey and earn rewards.</p></div><button class="primary" id="spacePractice" style="margin-top:14px;width:100%">Start Practice</button></div>
+      </aside>
+    </main>
+  </div>
+</div>
+
+<div class="teacher-app hidden" id="teacherApp">
+  <header class="teacher-topbar">
+    <div class="teacher-brand"><div class="logo">T</div><div><strong>Argus Teacher</strong><div class="small" id="teacherEmail">Teacher dashboard</div></div></div>
+    <div class="teacher-actions"><span class="teacher-chip">Teacher Interface</span><button class="logout" id="teacherLogoutButton">Log Out</button></div>
+  </header>
+  <iframe class="teacher-frame" id="teacherFrame" title="Teacher View"></iframe>
+</div>
+<div class="modal" id="aiModal">
+  <div class="modal-card">
+    <div class="ai-head"><div class="ai-title"><div class="ai-dot">✦</div>School AI Assistant</div><button class="ghost" id="closeAI">Close</button></div>
+    <div class="api-status" id="apiStatusModal" style="margin-bottom:16px"><span>○</span> Connecting</div>
+    <div class="modal-chat" id="modalChatList"></div>
+    <div class="chat-input"><input id="modalAiInput" placeholder="Ask a school question"><button class="send" id="modalAskAI">➤</button></div>
+  </div>
+</div>
+
+<div class="toast hidden" id="toast"></div>
+
+<script>
+const DB="argus_school_offline_ai_v3",SESSION="argus_school_session_offline_ai_v3",STUDY="argus_school_study_offline_ai_v3",NOTIFY="argus_school_notifications_v1";
+const SHEETS_WEB_APP_URL="https://script.google.com/macros/s/AKfycbzVYaiirHMG4Y3cWkqWBXxvrY0LL9ha4JqhtalpVm9h6VghcEBrE9iufZwNhhr_Qg5V/exec";
+const $=id=>document.getElementById(id);
+let activeNoticeFilter="all";
+
+// ============ API Configuration ============
+const API_KEY = "AQ.Ab8RN6JPUUfZIbV2ppJhtiKqkZ9K2fYGVb_e3X4UGv8mkPmCWA";
+const SYSTEM = `
+You are the official AI Assistant for the school website.
+Answer school questions and educational questions.
+If school information is unavailable,
+say so clearly.
+Explain academic concepts normally.
+Never reveal private data.
+Stay concise and professional.only respond to academic questions.write in plain text ONLY.u are not allowed to use * or # symbols.
+`;
+let aiBusy=false;
+
+function setApiStatus(connected,message){
+  const icon=connected?"●":"○";
+  const status=`<span>${icon}</span> ${message}`;
+  ["apiStatus","apiStatusModal"].forEach(id=>{
+    const el=$(id);
+    if(!el)return;
+    el.innerHTML=status;
+    el.classList.toggle("connected",connected);
+    el.classList.toggle("error",!connected&&message!=="Offline Mode");
+  });
+}
+
+async function callSchoolAI(text){
+  try{
+    const response=await fetch(`https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash:generateContent?key=${API_KEY}`,{
+      method:"POST",
+      headers:{"Content-Type":"application/json"},
+      body:JSON.stringify({
+        systemInstruction:{parts:[{text:SYSTEM}]},
+        contents:[{parts:[{text:text}]}]
+      })
+    });
+    const data=await response.json();
+    console.log(data);
+    let reply=data?.candidates?.[0]?.content?.parts?.[0]?.text;
+    if(!reply){
+      reply=data?.error?.message||"No response";
+      setApiStatus(false,"API Error");
+    }else{
+      setApiStatus(true,"Gemini Connected");
+    }
+    return cleanAIText(reply);
+  }catch(err){
+    setApiStatus(false,"Connection Error");
+    return "Error: "+err.message;
+  }
+}
+
+// ============ Data & Questions ============// ============ Data & Questions ============
+function q(level,skill,text,answers,why){return{level,skill,text,answers,why}}
+function ch(name,study,questions){return{name,study,questions}}
+
+const subjects={
+sel:{title:"SEL",short:"SEL",color:"green",desc:"Social emotional learning",chapters:[
+ch("Taking Care of Yourself","Self-awareness means noticing your feelings, thoughts, and choices. Healthy habits like breathing, reflection, and asking for help reduce stress.",[
+q(1,"Self-awareness","Naming your feelings helps you understand them. True or false?",["true","yes"],"Naming feelings builds self-awareness."),
+q(1,"Stress","One healthy way to reduce stress is deep?",["breathing","deep breathing"],"Deep breathing calms the body."),
+q(2,"Emotion","Feeling nervous before a test is normal. True or false?",["true","yes"],"Nervousness is common. Planning and breathing can reduce it."),
+q(2,"Empathy","Understanding another person's feelings is called?",["empathy"],"Empathy means understanding others."),
+q(3,"Choice","A responsible choice considers actions and?",["consequences","result","results"],"Responsible choices consider consequences.")
+]),
+ch("Communication","Good communication includes listening, clear words, respect, and calm disagreement.",[
+q(1,"Listening","Good listening means paying?",["attention"],"Attention helps you understand the speaker."),
+q(1,"Respect","Using kind words shows?",["respect"],"Respectful communication reduces conflict."),
+q(2,"Conflict","When disagreeing, you should stay?",["calm"],"Staying calm helps solve conflict."),
+q(3,"Speaking","Clear communication means your message is easy to?",["understand"],"Clear words help others understand you.")
+])
+]},
+science:{title:"Science",short:"SC",color:"orange",desc:"Matter, motion, cells",chapters:[
+ch("Matter in Our Surroundings","Matter has particles, occupies space, has mass, and exists as solid, liquid, or gas. State changes include evaporation, melting, freezing, condensation, and sublimation.",[
+q(1,"State change","Water changing into vapour is called?",["evaporation"],"Evaporation is liquid changing into vapour."),
+q(1,"State","Ice is solid, liquid, or gas?",["solid"],"Ice has fixed shape and volume, so it is solid."),
+q(2,"Particles","Particles move fastest in which state?",["gas","gaseous"],"Gas particles move freely and fastest."),
+q(2,"State change","Solid changing directly into gas is called?",["sublimation"],"Sublimation skips the liquid state."),
+q(3,"State change","Gas changing into liquid is called?",["condensation"],"Condensation is gas becoming liquid."),
+q(4,"Concept","Matter has mass and occupies?",["space"],"Anything with mass and space is matter."),
+q(5,"Reasoning","Evaporation causes cooling because particles take away?",["heat","energy"],"Fast particles escape and take energy with them.")
+]),
+ch("Motion","Motion is described using distance, displacement, speed, velocity, acceleration, and graphs.",[
+q(1,"Unit","SI unit of speed is?",["m/s","metre per second","meter per second","m per s"],"Speed is distance divided by time."),
+q(1,"Concept","Change in position with time is called?",["motion"],"Motion means position changes with time."),
+q(2,"Formula","Speed = distance divided by?",["time"],"Speed = distance/time."),
+q(2,"Formula","Distance = speed multiplied by?",["time"],"Distance = speed x time."),
+q(3,"Calculation","A body travels 100 m in 20 s. Find speed.",["5","5 m/s","5m/s","5 metre per second","5 meter per second"],"100 divided by 20 is 5 m/s."),
+q(4,"Acceleration","Change in velocity per unit time is?",["acceleration"],"Acceleration measures how quickly velocity changes."),
+q(5,"Graph","Slope of distance-time graph gives?",["speed"],"The slope of a distance-time graph gives speed.")
+]),
+ch("The Fundamental Unit of Life","Cells are the basic unit of life. Important parts include cell membrane, cytoplasm, nucleus, mitochondria, and vacuoles.",[
+q(1,"Cell","The basic unit of life is?",["cell"],"All living things are made of cells."),
+q(1,"Organelle","Powerhouse of the cell?",["mitochondria","mitochondrion"],"Mitochondria release energy."),
+q(2,"Control","Which organelle controls cell activities?",["nucleus"],"The nucleus controls cell functions."),
+q(2,"Boundary","The outer boundary of a cell is the cell?",["membrane","cell membrane"],"The cell membrane controls entry and exit."),
+q(3,"Plant cell","Plant cells have a cell wall. True or false?",["true","yes"],"Plant cells have a rigid cell wall."),
+q(4,"Fluid","The jelly-like fluid inside the cell is?",["cytoplasm"],"Cytoplasm contains cell organelles."),
+q(5,"Photosynthesis","Green plastids in plants are called?",["chloroplasts","chloroplast"],"Chloroplasts contain chlorophyll.")
+])
+]},
+english:{title:"English",short:"E",color:"green",desc:"Grammar and writing",chapters:[
+ch("Grammar","Revise tenses, articles, reported speech, modals, determiners, and subject-verb agreement.",[
+q(1,"Tense","She ___ to school every day. go or goes?",["goes"],"She is third person singular, so the verb takes -s: goes."),
+q(1,"Article","He is ___ honest man.",["an"],"Honest begins with a vowel sound /É’/, so use an."),
+q(2,"Verb","They ___ playing football. is or are?",["are"],"They is plural, so use are."),
+q(2,"Article","I saw ___ elephant.",["an"],"Elephant begins with a vowel sound /É›/, so use an."),
+q(3,"Reported Speech","He said, I am tired. He said that he ___.",["was tired"],"In reported speech, present tense am shifts to past tense was."),
+q(4,"Modal","You ___ respect your elders. should or can?",["should"],"Should expresses advice or moral duty."),
+q(5,"Agreement","The list of items ___ on the desk. is or are?",["is"],"The subject is list, which is singular, so use is.")
+]),
+ch("Writing Skills","Writing includes paragraphs, letters, diary entries, speeches, and stories. Focus on purpose, audience, and clarity.",[
+q(1,"Formal Letter","A formal letter uses polite and ___ language.",["formal"],"Formal letters use formal language."),
+q(1,"Story","People in a story are called?",["characters"],"Characters are the people in a story."),
+q(2,"Paragraph","A paragraph should focus on one main?",["idea","point"],"A paragraph develops one main idea."),
+q(3,"Speech","A speech should begin with a greeting. True or false?",["true","yes"],"A greeting addresses the audience."),
+q(4,"Diary","A diary entry is usually written in first?",["person"],"Diary entries use I, me, and my.")
+])
+]},
+maths:{title:"Mathematics",short:"M",color:"blue",desc:"Algebra, geometry, statistics",chapters:[
+ch("Number Systems","Study rational numbers, irrational numbers, decimal expansion, square roots, and surds.",[
+q(1,"Integers","What is -6 + 11?",["5","+5"],"Move 11 steps right from -6 to get 5."),
+q(1,"Integers","What is 12 - 19?",["-7"],"12 minus 19 is -7."),
+q(2,"Square Root","What is √64?",["8","+8"],"8 times 8 equals 64."),
+q(2,"Square Root","What is √81?",["9"],"9 times 9 equals 81."),
+q(3,"Surds","Simplify √81 + √49",["16"],"√81 = 9 and √49 = 7, so 9 + 7 = 16."),
+q(4,"Rational","Is 3/4 rational or irrational?",["rational"],"3/4 is a ratio of integers, so it is rational."),
+q(5,"Reasoning","A non-terminating non-repeating decimal is?",["irrational","irrational number"],"Irrational decimals do not terminate or repeat.")
+]),
+ch("Polynomials","Learn degree, coefficients, zeroes, identities, substitution, and factorisation.",[
+q(1,"Substitution","If p(x) = x + 5, find p(3).",["8"],"p(3) = 3 + 5 = 8."),
+q(1,"Degree","Degree of 4x² + 2x + 1 is?",["2","two"],"The highest power of x is 2."),
+q(2,"Zero","If p(x) = x - 4, what is the zero?",["4","x=4"],"Set x - 4 = 0, so x = 4."),
+q(3,"Evaluation","If x = 2, find x² + 3x + 1.",["11"],"4 + 6 + 1 = 11."),
+q(4,"Identity","Expand (x + 2)(x + 3).",["x^2+5x+6","x²+5x+6","x2+5x+6"],"x² + 3x + 2x + 6 = x² + 5x + 6."),
+q(5,"Factorisation","Factor x² - 9.",["(x-3)(x+3)","(x+3)(x-3)"],"Difference of squares: (x - 3)(x + 3).")
+]),
+ch("Triangles","Study angle sum property, congruence rules, and triangle properties.",[
+q(1,"Angle Sum","Sum of angles in a triangle is?",["180","180 degrees"],"All three interior angles of a triangle add up to 180°."),
+q(1,"Equilateral","Each angle of an equilateral triangle is?",["60","60 degrees"],"180° ÷ 3 = 60°."),
+q(2,"Sides","A triangle has how many sides?",["3","three"],"A triangle has three sides."),
+q(3,"Congruence","SSS is a congruence rule. True or false?",["true","yes"],"SSS (Side-Side-Side) proves two triangles congruent when all three pairs of sides are equal."),
+q(4,"Exterior Angle","Exterior angle of a triangle equals the sum of the two non-adjacent interior angles. True or false?",["true","yes"],"This is the exterior angle theorem."),
+q(5,"Reasoning","Angles of a triangle are x, 2x, and 3x. Find x.",["30","30 degrees"],"x + 2x + 3x = 180°, so 6x = 180° and x = 30°.")
+])
+]},
+sst:{title:"Social Science",short:"SS",color:"dark",desc:"History and geography",chapters:[
+ch("The French Revolution","Study causes, estates, Bastille, National Assembly, rights, liberty, equality, fraternity, and Napoleon.",[
+q(1,"Event","The Bastille fortress was stormed in which country?",["france"],"The Bastille was a prison fortress in Paris, France."),
+q(1,"Society","French society before the Revolution was divided into how many estates?",["3","three"],"There were three estates: clergy, nobility, and commoners."),
+q(2,"Idea","Liberty, equality, and fraternity are the ideals of which revolution?",["french revolution","french"],"These three ideals were central to the French Revolution."),
+q(3,"King","Louis XVI was the king of which country?",["france"],"Louis XVI was the king of France during the Revolution."),
+q(4,"Document","The Declaration of the Rights of Man and ___ was adopted in 1789.",["citizen","citizens"],"The full title is Declaration of the Rights of Man and Citizen.")
+]),
+ch("India Size and Location","Study latitudes, longitudes, neighboring countries, and the standard meridian.",[
+q(1,"Location","India lies mainly in which hemisphere?",["northern","northern hemisphere"],"India is located north of the equator."),
+q(1,"Continent","India is part of which continent?",["asia"],"India is located in South Asia."),
+q(2,"Meridian","India's standard meridian passes through 82° 30' ?",["east","e","east longitude"],"India's standard meridian is 82°30' East longitude."),
+q(3,"Ocean","The ocean to the south of India is the?",["indian ocean"],"The Indian Ocean lies to the south of India."),
+q(4,"Neighbor","Nepal lies to the ___ of India.",["north"],"Nepal is located to the north of India.")
+])
+]},
+computer:{title:"Computer",short:"C",color:"purple",desc:"Basics and cyber safety",chapters:[
+ch("Computer Basics","Study hardware, software, input, output, memory, and operating systems.",[
+q(1,"Hardware","A keyboard is an input or output device?",["input","input device"],"A keyboard sends data into the computer, so it is an input device."),
+q(1,"Software","Windows is an example of an operating?",["system","operating system"],"Windows is an operating system, which is system software."),
+q(2,"Memory","RAM stands for Random Access?",["memory"],"RAM stands for Random Access Memory."),
+q(2,"Device","A monitor is an input or output device?",["output","output device"],"A monitor displays results to the user, so it is an output device."),
+q(3,"Storage","A hard disk is used for storing?",["data","files","information"],"Hard disks provide permanent storage for data and files."),
+q(4,"Concept","Hardware is the physical part of a computer. True or false?",["true","yes"],"Hardware refers to all physical components that can be touched.")
+]),
+ch("Cyber Safety","Learn passwords, phishing, privacy, malware, and responsible online behavior.",[
+q(1,"Password","A strong password should be easy or hard to guess?",["hard","hard to guess"],"Strong passwords use a mix of letters, numbers, and symbols and are hard to guess."),
+q(1,"Threat","Fake emails that trick users into revealing passwords are called?",["phishing"],"Phishing is a cyberattack that uses deceptive emails to steal credentials."),
+q(2,"Privacy","You should share private personal information online. Yes or no?",["no"],"Private information such as passwords and addresses should never be shared online."),
+q(3,"Malware","Harmful software designed to damage or gain unauthorized access is called?",["malware"],"Malware is short for malicious software."),
+q(4,"Safety","Two-factor authentication adds an extra layer of?",["security","protection"],"Two-factor authentication requires a second form of verification, adding extra security.")
+])
+]}
+};
+
+let authMode="signin",user=null,activeSubject="science",activeChapter=0,current=null,start=0,missionActive=false,missionCount=0;
+
+function students(){return JSON.parse(localStorage.getItem(DB))||[]}
+function saveStudents(v){localStorage.setItem(DB,JSON.stringify(v))}
+function customStudy(){return JSON.parse(localStorage.getItem(STUDY))||{}}
+function saveCustomStudy(v){localStorage.setItem(STUDY,JSON.stringify(v))}
+function notifications(){return JSON.parse(localStorage.getItem(NOTIFY))||[]}
+function saveNotifications(v){localStorage.setItem(NOTIFY,JSON.stringify(v))}
+function sheetsBackendEnabled(){return SHEETS_WEB_APP_URL.trim().startsWith("https://script.google.com/")}
+function loadSheetNotifications(){
+  if(!sheetsBackendEnabled())return Promise.resolve(notifications());
+  return new Promise(resolve=>{
+    let callback="argusNotifyCallback_"+Date.now()+"_"+Math.floor(Math.random()*1000);
+    let script=document.createElement("script");
+    let done=false;
+    window[callback]=data=>{
+      done=true;
+      delete window[callback];
+      script.remove();
+      resolve(Array.isArray(data)?data:[]);
+    };
+    script.onerror=()=>{
+      if(done)return;
+      delete window[callback];
+      script.remove();
+      resolve(notifications());
+    };
+    script.src=SHEETS_WEB_APP_URL+"?action=list&callback="+callback+"&t="+Date.now();
+    document.body.appendChild(script);
+    setTimeout(()=>{
+      if(done)return;
+      delete window[callback];
+      script.remove();
+      resolve(notifications());
+    },8000);
+  });
+}
+let lastNotificationCount=0;
+
+async function refreshSheetNotifications(){
+  if(!sheetsBackendEnabled())return;
+
+  let oldCount=notifications().length;
+
+  let list=await loadSheetNotifications();
+  saveNotifications(list);
+
+  let newCount=list.length;
+
+  if(newCount>oldCount){
+    toast("🔔 New school notification received");
+  }
+
+  renderNotifications();
+}
+function progressTemplate(){let p={};Object.keys(subjects).forEach(s=>p[s]=subjects[s].chapters.map(()=>({level:1,total:0,correct:0,streak:0,num:0,recent:[],seen:[],lastLevelChange:"same"})));return p}
+function repair(){if(!user.progress)user.progress=progressTemplate();Object.keys(subjects).forEach(s=>{if(!user.progress[s])user.progress[s]=[];subjects[s].chapters.forEach((_,i)=>{if(!user.progress[s][i])user.progress[s][i]={level:1,total:0,correct:0,streak:0,num:0,recent:[],seen:[],lastLevelChange:"same"}})});if(!user.messages)user.messages=[];if(!user.chats)user.chats=[];if(user.euros===undefined)user.euros=70}
+function prog(){return user.progress[activeSubject][activeChapter]}
+function saveUser(){let all=students(),i=all.findIndex(x=>x.email===user.email);if(i>-1){all[i]=user;saveStudents(all)}}
+function studyKey(){return activeSubject+"_"+activeChapter}
+function studyText(){return customStudy()[studyKey()]||subjects[activeSubject].chapters[activeChapter].study}
+function toast(t){$("toast").textContent=t;$("toast").classList.remove("hidden");setTimeout(()=>$("toast").classList.add("hidden"),1800)}
+function addEuros(n,reason){user.euros=(user.euros||0)+n;$("euroCount").textContent=user.euros;toast("+"+n+" Euros: "+reason);saveUser()}
+function escapeHTML(value){
+  return String(value).replace(/[&<>"']/g,char=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[char]));
+}
+function cleanAIText(value){
+  return String(value||"").replace(/[*#]/g,"").trim()||"No response";
+}
+function buildStudentPrompt(prompt){
+  let chapter="Unavailable",level="Unavailable",question="None",student="Student";
+  if(user){
+    student=user.name||"Student";
+    if(subjects[activeSubject]&&subjects[activeSubject].chapters[activeChapter]){
+      chapter=subjects[activeSubject].chapters[activeChapter].name;
+    }
+    if(user.progress&&user.progress[activeSubject]&&user.progress[activeSubject][activeChapter]){
+      level=prog().level;
+    }
+  }
+  if(current&&current.text)question=current.text;
+  return `Current school context:
+Student: ${student}
+Active chapter: ${chapter}
+Current level: ${level}
+Current question: ${question}
+
+Student question: ${prompt}`;
+}
+
+function setAuth(m){authMode=m;$("signinTab").classList.toggle("active",m==="signin");$("signupTab").classList.toggle("active",m==="signup");$("nameField").classList.toggle("hidden",m!=="signup");$("authButton").textContent=m==="signin"?"Enter Portal":"Create Profile";$("authMessage").textContent=""}
+const TEACHER_SESSION="argus_teacher_session_v1";
+const TEACHER_HTML="\u003c!DOCTYPE html\u003e\n\u003chtml lang=\"en\"\u003e\n\u003chead\u003e\n\u003cmeta charset=\"UTF-8\"\u003e\n\u003cmeta name=\"viewport\" content=\"width=device-width, initial-scale=1.0\"\u003e\n\u003ctitle\u003eSend School Notifications\u003c/title\u003e\n\u003clink rel=\"preconnect\" href=\"https://fonts.googleapis.com\"\u003e\n\u003clink rel=\"preconnect\" href=\"https://fonts.gstatic.com\" crossorigin\u003e\n\u003clink href=\"https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@500;600;700\u0026family=Inter:wght@400;500;600;700;800\u0026display=swap\" rel=\"stylesheet\"\u003e\n\u003cstyle\u003e\n*{box-sizing:border-box;margin:0;padding:0}\nbody{min-height:100vh;font-family:\u0027Inter\u0027,sans-serif;background:#f4f7fb;color:#172033;line-height:1.5;padding:28px}\nh1,h2,h3{font-family:\u0027Space Grotesk\u0027,sans-serif;letter-spacing:0;font-weight:700}\nbutton,input,textarea,select{font:inherit}\nbutton{border:0;cursor:pointer;transition:all .2s ease}\n.shell{width:min(980px,100%);margin:0 auto;display:grid;gap:22px}\n.top{display:flex;align-items:flex-end;justify-content:space-between;gap:16px;flex-wrap:wrap}\n.top p{color:#64748b;margin-top:6px}\n.panel{background:white;border:1.5px solid #dbe3ef;border-radius:20px;padding:22px;box-shadow:0 12px 30px rgba(15,23,42,.06)}\n.form{display:grid;gap:16px}\n.grid{display:grid;grid-template-columns:1fr 220px;gap:14px}\nlabel{display:grid;gap:8px;font-size:12px;text-transform:uppercase;letter-spacing:1px;color:#64748b;font-weight:800}\ninput,textarea,select{width:100%;border:2px solid #dbe3ef;border-radius:16px;padding:12px 14px;background:#f8fafc;color:#172033;outline:none}\ntextarea{min-height:140px;resize:vertical;text-transform:none;letter-spacing:0;font-size:14px;font-weight:500}\ninput:focus,textarea:focus,select:focus{border-color:#2563eb;background:white}\n.actions{display:flex;align-items:center;gap:12px;flex-wrap:wrap}\n.primary{min-height:44px;border-radius:16px;background:#2563eb;color:white;font-weight:800;padding:0 18px}\n.ghost{min-height:44px;border-radius:16px;background:#eef2f7;color:#334155;font-weight:800;padding:0 18px}\n.primary:hover,.ghost:hover{transform:translateY(-1px);box-shadow:0 8px 18px rgba(15,23,42,.12)}\n.hint{font-size:13px;color:#64748b}\n.list{display:grid;gap:12px;margin-top:14px}\n.notice{display:grid;gap:8px;border:1.5px solid #e2e8f0;border-left:5px solid #94a3b8;border-radius:18px;padding:16px;background:#fff}\n.notice.urgent{border-left-color:#dc2626;background:#fff7f7}\n.notice.good{border-left-color:#2563eb;background:#f8fbff}\n.notice.unrelated{border-left-color:#94a3b8;background:#fafafa}\n.row{display:flex;align-items:center;justify-content:space-between;gap:12px;flex-wrap:wrap}\n.badge{border-radius:999px;padding:5px 10px;font-size:11px;font-weight:800;text-transform:uppercase;letter-spacing:.5px;background:#e5e7eb;color:#4b5563}\n.badge.urgent{background:#fee2e2;color:#b91c1c}.badge.good{background:#dbeafe;color:#1d4ed8}.badge.unrelated{background:#e5e7eb;color:#4b5563}\n.empty{border:1.5px dashed #cbd5e1;border-radius:18px;padding:22px;text-align:center;color:#64748b;background:#f8fafc}\n.toast{position:fixed;right:24px;bottom:24px;background:#172033;color:white;border-radius:16px;padding:14px 18px;font-weight:800;box-shadow:0 14px 34px rgba(15,23,42,.22)}\n.hidden{display:none}\n@media(max-width:720px){body{padding:18px}.grid{grid-template-columns:1fr}.panel{padding:18px}}\n\u003c/style\u003e\n\u003c/head\u003e\n\u003cbody\u003e\n\u003cmain class=\"shell\"\u003e\n  \u003cdiv class=\"top\"\u003e\n    \u003cdiv\u003e\n      \u003ch1\u003eSend Notifications\u003c/h1\u003e\n      \u003cp\u003eCreate a school notice here. The student page filters it into Urgent, Good to Know, or Unrelated.\u003c/p\u003e\n    \u003c/div\u003e\n    \n  \u003c/div\u003e\n\n  \u003csection class=\"panel\"\u003e\n    \u003cdiv class=\"form\"\u003e\n      \u003cdiv class=\"grid\"\u003e\n        \u003clabel\u003eTitle\n          \u003cinput id=\"titleInput\" placeholder=\"Example: Maths test tomorrow\"\u003e\n        \u003c/label\u003e\n        \u003clabel\u003eFilter\n          \u003cselect id=\"categoryInput\"\u003e\n            \u003coption value=\"auto\"\u003eAuto filter\u003c/option\u003e\n            \u003coption value=\"urgent\"\u003eUrgent\u003c/option\u003e\n            \u003coption value=\"good\"\u003eGood to Know\u003c/option\u003e\n            \u003coption value=\"unrelated\"\u003eUnrelated\u003c/option\u003e\n          \u003c/select\u003e\n        \u003c/label\u003e\n      \u003c/div\u003e\n      \u003clabel\u003eMessage\n        \u003ctextarea id=\"messageInput\" placeholder=\"Write the notification for students\"\u003e\u003c/textarea\u003e\n      \u003c/label\u003e\n      \u003cdiv class=\"grid\"\u003e\n        \u003clabel\u003eSender\n          \u003cinput id=\"senderInput\" value=\"School Office\"\u003e\n        \u003c/label\u003e\n        \u003clabel\u003eAudience\n          \u003cselect id=\"audienceInput\"\u003e\n            \u003coption\u003eAll students\u003c/option\u003e\n            \u003coption\u003eGrade 9\u003c/option\u003e\n            \u003coption\u003eParents\u003c/option\u003e\n            \u003coption\u003eTeachers\u003c/option\u003e\n          \u003c/select\u003e\n        \u003c/label\u003e\n      \u003c/div\u003e\n      \u003cdiv class=\"actions\"\u003e\n        \u003cbutton class=\"primary\" id=\"sendNotification\"\u003eSend Notification\u003c/button\u003e\n        \u003cbutton class=\"ghost\" id=\"clearForm\"\u003eClear Form\u003c/button\u003e\n        \u003cspan class=\"hint\"\u003eREADY\u003c/span\u003e\n      \u003c/div\u003e\n    \u003c/div\u003e\n  \u003c/section\u003e\n\n  \u003csection class=\"panel\"\u003e\n    \u003cdiv class=\"row\"\u003e\n      \u003ch2\u003eRecently Sent\u003c/h2\u003e\n      \u003cbutton class=\"ghost\" id=\"clearAll\"\u003eClear All\u003c/button\u003e\n    \u003c/div\u003e\n    \u003cdiv class=\"list\" id=\"sentList\"\u003e\u003c/div\u003e\n  \u003c/section\u003e\n\u003c/main\u003e\n\u003cdiv class=\"toast hidden\" id=\"toast\"\u003e\u003c/div\u003e\n\n\u003cscript\u003e\nconst NOTIFY=\"argus_school_notifications_v1\";\nconst SHEETS_WEB_APP_URL=\"https://script.google.com/macros/s/AKfycbzVYaiirHMG4Y3cWkqWBXxvrY0LL9ha4JqhtalpVm9h6VghcEBrE9iufZwNhhr_Qg5V/exec\";\nconst $=id=\u003edocument.getElementById(id);\n\nfunction escapeHTML(value){\n  return String(value).replace(/[\u0026\u003c\u003e\"\u0027]/g,char=\u003e({\"\u0026\":\"\u0026amp;\",\"\u003c\":\"\u0026lt;\",\"\u003e\":\"\u0026gt;\",\u0027\"\u0027:\"\u0026quot;\",\"\u0027\":\"\u0026#39;\"}[char]));\n}\nfunction notifications(){return JSON.parse(localStorage.getItem(NOTIFY))||[]}\nfunction saveNotifications(v){localStorage.setItem(NOTIFY,JSON.stringify(v))}\nfunction sheetsBackendEnabled(){return SHEETS_WEB_APP_URL.trim().startsWith(\"https://script.google.com/\")}\nfunction loadSheetNotifications(){\n  if(!sheetsBackendEnabled())return Promise.resolve(notifications());\n  return new Promise(resolve=\u003e{\n    let callback=\"argusSenderCallback_\"+Date.now()+\"_\"+Math.floor(Math.random()*1000);\n    let script=document.createElement(\"script\");\n    let done=false;\n    window[callback]=data=\u003e{\n      done=true;\n      delete window[callback];\n      script.remove();\n      resolve(Array.isArray(data)?data:[]);\n    };\n    script.onerror=()=\u003e{\n      if(done)return;\n      delete window[callback];\n      script.remove();\n      resolve(notifications());\n    };\n    script.src=SHEETS_WEB_APP_URL+\"?action=list\u0026callback=\"+callback+\"\u0026t=\"+Date.now();\n    document.body.appendChild(script);\n    setTimeout(()=\u003e{\n      if(done)return;\n      delete window[callback];\n      script.remove();\n      resolve(notifications());\n    },8000);\n  });\n}\nasync function syncFromSheet(){\n  if(!sheetsBackendEnabled())return;\n  let list=await loadSheetNotifications();\n  saveNotifications(list);\n  render();\n}\nfunction toast(text){\n  $(\"toast\").textContent=text;\n  $(\"toast\").classList.remove(\"hidden\");\n  setTimeout(()=\u003e$(\"toast\").classList.add(\"hidden\"),1800);\n}\nfunction classifyNotification(title,message){\n  let text=(title+\" \"+message).toLowerCase();\n  let urgent=[\"urgent\",\"important\",\"deadline\",\"exam\",\"test\",\"fee\",\"fees\",\"closed\",\"cancelled\",\"emergency\",\"immediately\",\"today\",\"tomorrow\"];\n  let good=[\"reminder\",\"event\",\"club\",\"assembly\",\"holiday\",\"schedule\",\"practice\",\"homework\",\"note\",\"project\",\"meeting\"];\n  if(urgent.some(word=\u003etext.includes(word)))return \"urgent\";\n  if(good.some(word=\u003etext.includes(word)))return \"good\";\n  return \"unrelated\";\n}\nfunction label(type){\n  return type===\"urgent\"?\"Urgent\":type===\"good\"?\"Good to Know\":\"Unrelated\";\n}\nasync function sendNotification(){\n  let title=$(\"titleInput\").value.trim();\n  let message=$(\"messageInput\").value.trim();\n  let selected=$(\"categoryInput\").value;\n  if(!title||!message){toast(\"Add a title and message\");return}\n  let category=selected===\"auto\"?classifyNotification(title,message):selected;\n  let item={\n    id:Date.now(),\n    title,\n    message,\n    category,\n    sender:$(\"senderInput\").value.trim()||\"School Office\",\n    audience:$(\"audienceInput\").value,\n    time:new Date().toLocaleString()\n  };\n  let list=notifications();\n  list.unshift(item);\n  saveNotifications(list.slice(0,80));\n  if(sheetsBackendEnabled()){\n    fetch(SHEETS_WEB_APP_URL,{\n      method:\"POST\",\n      mode:\"no-cors\",\n      headers:{\"Content-Type\":\"text/plain;charset=utf-8\"},\n      body:JSON.stringify(item)\n    }).catch(()=\u003e{});\n  }\n  $(\"titleInput\").value=\"\";\n  $(\"messageInput\").value=\"\";\n  $(\"categoryInput\").value=\"auto\";\n  render();\n  toast(sheetsBackendEnabled()?\"Notification sent to Sheet\":\"Notification saved locally\");\n  setTimeout(syncFromSheet,1200);\n}\nfunction render(){\n  let list=notifications();\n  $(\"sentList\").innerHTML=list.length?list.map(n=\u003e`\u003cdiv class=\"notice ${n.category}\"\u003e\u003cdiv class=\"row\"\u003e\u003ch3\u003e${escapeHTML(n.title)}\u003c/h3\u003e\u003cspan class=\"badge ${n.category}\"\u003e${label(n.category)}\u003c/span\u003e\u003c/div\u003e\u003cp\u003e${escapeHTML(n.message)}\u003c/p\u003e\u003csmall\u003e${escapeHTML(n.sender)} · ${escapeHTML(n.audience||\"All students\")} · ${escapeHTML(n.time||\"\")}\u003c/small\u003e\u003c/div\u003e`).join(\"\"):`\u003cdiv class=\"empty\"\u003eNo notifications sent yet.\u003c/div\u003e`;\n}\n\n$(\"sendNotification\").onclick=sendNotification;\n$(\"clearForm\").onclick=()=\u003e{$(\"titleInput\").value=\"\";$(\"messageInput\").value=\"\";$(\"categoryInput\").value=\"auto\";toast(\"Form cleared\")};\n$(\"clearAll\").onclick=()=\u003e{saveNotifications([]);render();toast(\"All notifications cleared\")};\nif($(\"openStudent\")) $(\"openStudent\").onclick=()=\u003ewindow.open(\"main.html\",\"_blank\");\n$(\"messageInput\").addEventListener(\"keydown\",e=\u003e{if(e.key===\"Enter\"\u0026\u0026(e.metaKey||e.ctrlKey))sendNotification()});\nrender();\nsyncFromSheet();\n\u003c/script\u003e\n\u003c/body\u003e\n\u003c/html\u003e\n";
+function selectedRole(){return roleSelect?roleSelect.value:"student"}
+function updateRoleFields(){
+  const role=selectedRole();
+  if(role==="teacher"){
+    if(authMode==="signup")setAuth("signin");
+    nameField.classList.add("hidden");
+    signupTab.style.opacity="0.45";
+    roleHint.textContent="Teacher login: use your teacher email and password teacher123";
+    authButton.textContent="Enter Teacher Portal";
+  }else{
+    signupTab.style.opacity="1";
+    roleHint.textContent="Students can sign in or sign up. Teachers use password: teacher123";
+    setAuth(authMode);
+  }
+}
+function openTeacherApp(email){
+  loginScreen.classList.add("hidden");
+  app.classList.add("hidden");
+  teacherApp.classList.remove("hidden");
+  teacherEmail.textContent=email||"Teacher dashboard";
+  const frame=teacherFrame;
+  if(frame&&!frame.srcdoc)frame.srcdoc=TEACHER_HTML;
+  toast("Welcome, teacher");
+}
+function teacherLogout(){
+  localStorage.removeItem(TEACHER_SESSION);
+  teacherApp.classList.add("hidden");
+  loginScreen.classList.remove("hidden");
+  toast("Teacher logged out");
+}
+function auth(){
+  if(selectedRole()==="teacher"){
+    let email=$("emailInput").value.trim().toLowerCase(),pass=$("passwordInput").value.trim();
+    if(!email||!pass){$("authMessage").textContent="Enter teacher email and password.";return}
+    if(pass!=="teacher123"){$("authMessage").textContent="Invalid teacher password. Use teacher123 for this demo.";return}
+    localStorage.setItem(TEACHER_SESSION,JSON.stringify({email}));
+    openTeacherApp(email);
+    return;
+  }
+  let name=$("nameInput").value.trim(),email=$("emailInput").value.trim().toLowerCase(),pass=$("passwordInput").value.trim(),all=students();
+  if(!email||!pass){$("authMessage").textContent="Enter email and password.";return}
+  if(authMode==="signup"){
+    if(!name){$("authMessage").textContent="Enter student name.";return}
+    if(all.some(x=>x.email===email)){$("authMessage").textContent="Profile already exists.";return}
+    user={name,email,password:pass,progress:progressTemplate(),messages:[],chats:[],euros:70};all.push(user);saveStudents(all);localStorage.setItem(SESSION,email);openApp();return}
+  let found=all.find(x=>x.email===email&&x.password===pass);
+  if(!found){$("authMessage").textContent="Invalid sign in.";return}
+  user=found;repair();localStorage.setItem(SESSION,email);openApp()
+}
+function openApp(){
+  $("loginScreen").classList.add("hidden");$("app").classList.remove("hidden");
+  $("helloText").textContent="Hi, "+user.name;$("profileName").textContent=user.name;$("profileEmail").textContent=user.email;$("topInitial").textContent=user.name.slice(0,2).toUpperCase();$("euroCount").textContent=user.euros;
+  setApiStatus(Boolean(API_KEY),"Gemini Ready");
+  renderAll();refreshSheetNotifications();toast("Welcome back, "+user.name)
+}
+function logout(){localStorage.removeItem(SESSION);user=null;$("app").classList.add("hidden");$("loginScreen").classList.remove("hidden");toast("Logged out")}
+function setView(v){document.querySelectorAll(".view").forEach(x=>x.classList.remove("active"));$(v+"View").classList.add("active");document.querySelectorAll(".nav button").forEach(b=>b.classList.toggle("active",b.dataset.view===v))}
+function renderAll(){renderJourney();renderCurriculum();renderCourses();renderCalendar();renderSubjectSelect();renderChapters();renderStudy();renderQuestion();renderDash();renderMessages();renderNotifications();renderChats()}
+
+function renderJourney(){
+  $("journeyCards").innerHTML=Object.keys(subjects).slice(0,3).map(k=>{let s=subjects[k],p=user.progress[k][0];return `<div class="card course-card"><div><div class="subject-top"><div class="subject-icon ${s.color}">${s.short}</div><div><h3>${s.title}</h3><p class="small">By Argus</p></div></div><div class="tasks"><div class="task">→ ${s.chapters[0].name}</div><div class="task">→ ${s.chapters[1]?.name||"Practice"} <b>${p.total>0?"Recently Completed":"Yet To Start"}</b></div></div></div><div class="card-foot"><button class="viewall" onclick="openSubject('${k}','notes')">▧ Resources</button><button class="viewall" onclick="openSubject('${k}','adaptive')">◷ Tasks</button></div></div>`}).join("")
+}
+function renderCurriculum(){
+  $("curriculumFilter").innerHTML=`<option value="all">All Subjects</option>`+Object.keys(subjects).map(k=>`<option value="${k}">${subjects[k].title}</option>`).join("");
+  let selected=$("curriculumFilter").value||"all",keys=selected==="all"?Object.keys(subjects):[selected];
+  $("curriculumCards").innerHTML=keys.map(k=>{let s=subjects[k];return `<div class="card"><div class="subject-top"><div class="subject-icon ${s.color}">${s.short}</div><div><h3>${s.title}</h3><p class="small">${s.desc}</p></div></div><div class="tasks">${s.chapters.map(c=>`<div class="task">→ ${c.name}</div>`).join("")}</div><button class="primary" style="margin-top:14px" onclick="openSubject('${k}','adaptive')">Start Learning</button></div>`}).join("")
+}
+function renderCourses(){
+  $("courseCards").innerHTML=Object.keys(subjects).map(k=>`<div class="card"><h3>${subjects[k].title}</h3><p class="small">${subjects[k].desc}</p><button class="primary" style="margin-top:12px" onclick="openSubject('${k}','adaptive')">Open Course</button></div>`).join("")
+}
+function renderCalendar(){
+  $("calendarCards").innerHTML=["Maths quiz - Monday","Science lab notes - Wednesday","English writing task - Friday"].map(x=>`<div class="card"><h3>${x}</h3><p class="small">Demo calendar event</p><button class="ghost" onclick="toast('Reminder set')">Set Reminder</button></div>`).join("")
+}
+function renderSubjectSelect(){
+  $("subjectSelect").innerHTML=Object.keys(subjects).map(k=>`<option value="${k}">${subjects[k].title}</option>`).join("");
+  $("subjectSelect").value=activeSubject
+}
+function openSubject(k,v){activeSubject=k;activeChapter=0;renderSubjectSelect();renderChapters();renderStudy();renderQuestion();renderDash();setView(v)}
+function renderChapters(){
+  let s=subjects[activeSubject];$("activeSubjectTitle").textContent=s.title;$("chapterButtons").innerHTML=s.chapters.map((c,i)=>`<button class="chapter-btn ${i===activeChapter?"active":""}" onclick="chooseChapter(${i})">${c.name}<br><span class="small">Study + adaptive practice</span></button>`).join("")
+}
+function chooseChapter(i){activeChapter=i;renderChapters();renderStudy();renderQuestion();renderDash();toast("Chapter changed")}
+function renderStudy(){let c=subjects[activeSubject].chapters[activeChapter];$("studyHeading").textContent=c.name;$("studyText").textContent=studyText();$("studyEditor").value=studyText();$("chapterTitle").textContent=c.name;$("activeChapterText").textContent=c.name}
+
+function renderQuestion(){
+  let p=prog(),c=subjects[activeSubject].chapters[activeChapter],pool=c.questions.filter(x=>x.level<=p.level);
+  if(!pool.length)pool=c.questions;
+  if(p.lastLevelChange==="down")pool=c.questions.filter(x=>x.level<=Math.max(1,p.level)&&!p.seen.includes(x.text));
+  if(p.lastLevelChange==="up")pool=c.questions.filter(x=>x.level>=Math.max(1,p.level-1)&&x.level<=p.level&&!p.seen.includes(x.text));
+  if(!pool.length)pool=c.questions.filter(x=>x.level<=p.level);
+  let unseen=pool.filter(x=>!p.seen.includes(x.text));if(unseen.length)pool=unseen;else p.seen=[];
+  current=pool[Math.floor(Math.random()*pool.length)];p.num++;p.seen.push(current.text);p.seen=p.seen.slice(-10);p.lastLevelChange="same";
+  $("questionText").textContent=current.text;$("skillText").textContent="Skill: "+current.skill;$("levelTag").textContent="Level "+p.level;$("answerInput").value="";start=Date.now();saveUser()
+}
+
+function normalizeText(v){
+  return String(v).toLowerCase()
+    .replace(/²/g,"^2").replace(/°/g,"").replace(/metres/g,"meter").replace(/metre/g,"meter")
+    .replace(/seconds/g,"second").replace(/persecond/g,"/s").replace(/meters/g,"meter")
+    .replace(/[.,;:!?]/g,"").replace(/\s+/g," ").trim()
+}
+function compact(v){return normalizeText(v).replace(/\s+/g,"").replace(/meterspersecond|meterpersecond/g,"m/s")}
+function wordNumber(v){
+  let map={zero:"0",one:"1",two:"2",three:"3",four:"4",five:"5",six:"6",seven:"7",eight:"8",nine:"9",ten:"10",eleven:"11",twelve:"12",sixteen:"16",eighteen:"18",thirty:"30",sixty:"60",onehalf:"1/2",half:"1/2"};
+  let c=compact(v);return map[c]||c
+}
+function numericValue(v){
+  let s=compact(v).replace(/degrees|degree|m\/s|mps|meter\/second|meterpersecond|u|n/g,"");
+  if(s.includes("/")){let parts=s.split("/").map(Number);if(parts.length===2&&parts[1]!==0)return parts[0]/parts[1]}
+  let n=Number(s);return Number.isFinite(n)?n:null
+}
+function isCorrect(input,answers){
+  let a=compact(input),aw=wordNumber(input),num=numericValue(input);
+  return answers.some(ans=>{
+    let b=compact(ans),bw=wordNumber(ans),bn=numericValue(ans);
+    if(a===b||aw===bw)return true;
+    if(num!==null&&bn!==null&&Math.abs(num-bn)<0.0001)return true;
+    if(a.includes(b)&&b.length>2)return true;
+    if(b.includes(a)&&a.length>2)return true;
+    return false;
+  });
+}
+
+function submitAnswer(){
+  let input=$("answerInput").value.trim();if(!input){$("feedbackText").textContent="Type your answer first.";$("feedbackText").classList.add("bad");return}
+  let p=prog(),sec=Math.max(1,Math.round((Date.now()-start)/1000)),ok=isCorrect(input,current.answers);p.total++;
+  if(ok){p.correct++;p.streak++;$("feedbackText").textContent="✓ Correct! Argus adjusted your learning path.";$("feedbackText").classList.remove("bad");addEuros(5,"correct answer");if(p.streak>0&&p.streak%3===0)addEuros(10,"streak bonus")}
+  else{p.streak=0;$("feedbackText").textContent="✗ Not quite. Answer: "+current.answers[0];$("feedbackText").classList.add("bad")}
+  if(missionActive&&ok){missionCount++;if(missionCount>=5){missionActive=false;missionCount=0;addEuros(20,"Space Walk mission complete")}}
+  p.recent.push({ok,sec});p.recent=p.recent.slice(-6);adapt(p,ok,sec);saveUser();renderDash();setTimeout(renderQuestion,850)
+}
+function adapt(p,ok,sec){
+  let acc=p.recent.length?p.recent.filter(x=>x.ok).length/p.recent.length:0;
+  if(ok&&p.streak>=2&&sec<=12){p.level=Math.min(5,p.level+1);p.lastLevelChange="up";$("systemLog").textContent="📈 Difficulty increased: Your answers were accurate and confident."}
+  else if(!ok&&p.recent.length>=2&&acc<=.5){p.level=Math.max(1,p.level-1);p.lastLevelChange="down";$("systemLog").textContent="📚 Difficulty lowered: You'll see a different, easier question."}
+  else if(sec>=20&&acc<.7){p.level=Math.max(1,p.level-1);p.lastLevelChange="down";$("systemLog").textContent="🤝 Support activated: Easier question selected with more guidance."}
+  else{$("systemLog").textContent=ok?"✓ Progress detected: Maintaining your learning path.":"⚡ Challenge detected: Extra support coming next."}
+}
+function skipQuestion(){let p=prog();p.streak=0;p.recent.push({ok:false,sec:20});p.recent=p.recent.slice(-6);p.level=Math.max(1,p.level-1);p.lastLevelChange="down";saveUser();renderDash();renderQuestion();toast("Question skipped. Easier question selected.")}
+function renderDash(){let p=prog(),acc=p.total?Math.round(p.correct/p.total*100):0;$("accuracyMetric").textContent=acc+"%";$("streakMetric").textContent=p.streak;$("levelMetric").textContent=p.level;$("accuracyBar").style.width=acc+"%";$("streakBar").style.width=Math.min(100,p.streak*15)+"%";$("levelBar").style.width=p.level*20+"%";$("euroCount").textContent=user.euros}
+function resetProgress(){user.progress[activeSubject][activeChapter]={level:1,total:0,correct:0,streak:0,num:0,recent:[],seen:[],lastLevelChange:"same"};saveUser();renderQuestion();renderDash();toast("Progress reset")}
+function saveStudy(){let c=customStudy();c[studyKey()]=$("studyEditor").value.trim()||subjects[activeSubject].chapters[activeChapter].study;saveCustomStudy(c);renderStudy();toast("Study material saved")}
+function resetStudy(){let c=customStudy();delete c[studyKey()];saveCustomStudy(c);renderStudy();toast("Study material reset")}
+function sendMessage(){let text=$("messageInput").value.trim();if(!text)return;user.messages.unshift({text,time:new Date().toLocaleString(),chapter:subjects[activeSubject].chapters[activeChapter].name});$("messageInput").value="";saveUser();renderMessages();toast("Message sent")}
+function renderMessages(){$("messageList").innerHTML=user.messages.length?user.messages.map(m=>`<div class="msg"><strong>${m.chapter}</strong><div>${m.text}</div><small>${m.time}</small></div>`).join(""):`<div class="msg">No messages yet.</div>`}
+function clearMessages(){user.messages=[];saveUser();renderMessages();toast("Messages cleared")}
+
+function classifyNotification(n){
+  let raw=(n.category||"").toLowerCase();
+  if(["urgent","good","unrelated"].includes(raw))return raw;
+  let text=((n.title||"")+" "+(n.message||"")).toLowerCase();
+  let urgent=["urgent","important","deadline","exam","test","fee","fees","closed","cancelled","emergency","immediately","today","tomorrow"];
+  let good=["reminder","event","club","assembly","holiday","schedule","practice","homework","note","project","meeting"];
+  if(urgent.some(word=>text.includes(word)))return "urgent";
+  if(good.some(word=>text.includes(word)))return "good";
+  return "unrelated";
+}
+function noticeLabel(type){
+  return type==="urgent"?"Urgent":type==="good"?"Good to Know":"Unrelated";
+}
+function renderNotifications(){
+  let list=notifications().map(n=>({...n,category:classifyNotification(n)}));
+  $("noticeCount").textContent=list.length;
+  let visible=activeNoticeFilter==="all"?list:list.filter(n=>n.category===activeNoticeFilter);
+  $("notificationList").innerHTML=visible.length?visible.map(n=>`<div class="notice ${n.category}"><div class="notice-top"><div class="notice-title">${escapeHTML(n.title||"School Notification")}</div><span class="notice-badge ${n.category}">${noticeLabel(n.category)}</span></div><div class="small">${escapeHTML(n.message||"")}</div><small>${escapeHTML(n.sender||"School")} · ${escapeHTML(n.time||"")}</small></div>`).join(""):`<div class="notice-empty">No notifications in this filter.</div>`;
+}
+function clearNotifications(){saveNotifications([]);renderNotifications();toast(sheetsBackendEnabled()?"Local notification view cleared":"Notifications cleared")}
+function setNoticeFilter(filter){
+  activeNoticeFilter=filter;
+  document.querySelectorAll("[data-notice-filter]").forEach(btn=>btn.classList.toggle("active",btn.dataset.noticeFilter===filter));
+  renderNotifications();
+}
+
+function schoolSafe(text){
+  let bad=["kill","weapon","bomb","hack","cheat in exam","violence","adult","drugs","password steal"];
+  let t=text.toLowerCase();
+  return !bad.some(x=>t.includes(x));
+}
+
+// ========== addChat: push so newest is always at the end (bottom) ==========
+function addChat(who,text){
+  const item={id:Date.now()+"_"+Math.random().toString(16).slice(2),who,text,time:new Date().toLocaleTimeString()};
+  user.chats.push(item);
+  user.chats=user.chats.slice(-30);
+  saveUser();
+  renderChats();
+  return item.id;
+}
+
+// ========== askAI: push loading bubble, pop it when done, push real reply ==========// ========== askAI: push loading bubble, pop it when done, push real reply ==========
+async function askAI(inputId="aiInput"){
+  if(aiBusy)return;
+  const input=$(inputId);
+  const text=input.value.trim();
+  if(!text)return;
+  if(!user){toast("Sign in before using the assistant.");return}
+  aiBusy=true;
+  ["askAI","modalAskAI"].forEach(id=>{const btn=$(id);if(btn)btn.disabled=true});
+  addChat(user.name,text);
+  input.value="";
+  const loadingId=addChat("Assistant","Thinking...");
+  try{
+    const reply=await callSchoolAI(text);
+    user.chats=user.chats.filter(c=>c.id!==loadingId);
+    saveUser();
+    addChat("Assistant",reply);
+  }catch(err){
+    user.chats=user.chats.filter(c=>c.id!==loadingId);
+    saveUser();
+    addChat("Assistant","Error: "+err.message);
+  }finally{
+    aiBusy=false;
+    ["askAI","modalAskAI"].forEach(id=>{const btn=$(id);if(btn)btn.disabled=false});
+  }
+}
+
+// ========== renderChats: oldest at top, newest at bottom, scroll to bottom ==========// ========== renderChats: oldest at top, newest at bottom, scroll to bottom ==========
+function renderChats(){
+  let html=user.chats.length
+    ? user.chats.map(c=>`<div class="bubble ${c.who==="Assistant"||c.who==="School AI Assistant"?"ai":"user"} ${c.text==="Thinking..."?"loading":""}">${escapeHTML(c.text)}<small>${escapeHTML(c.who)} · ${escapeHTML(c.time)}</small></div>`).join("")
+    : `<div class="bubble user">Can you explain photosynthesis?<small>2 min ago</small></div><div class="bubble ai">Plants make food using sunlight, carbon dioxide, and water. The process is called photosynthesis.<small>2 min ago</small></div>`;
+  $("chatList").innerHTML=html;
+  $("modalChatList").innerHTML=html;
+  // Scroll both lists to bottom so newest message is always visible
+  $("chatList").scrollTop=$("chatList").scrollHeight;
+  $("modalChatList").scrollTop=$("modalChatList").scrollHeight;
+}
+
+function explainCurrent(){if(!current){toast("No active question to explain.");return}addChat("Assistant",current.why+" Correct answer: "+current.answers[0]+".");toast("Assistant explained the answer")}
+function restore(){let teacherSession=localStorage.getItem(TEACHER_SESSION);if(teacherSession){try{openTeacherApp(JSON.parse(teacherSession).email)}catch(e){openTeacherApp("Teacher dashboard")}return}let email=localStorage.getItem(SESSION);if(!email)return;let found=students().find(x=>x.email===email);if(found){user=found;repair();openApp()}}
+
+$("signinTab").onclick=()=>{setAuth("signin");updateRoleFields()};$("signupTab").onclick=()=>{if(selectedRole()==="teacher"){toast("Teacher accounts use Sign In");return}setAuth("signup");updateRoleFields()};$("authButton").onclick=auth;$("logoutButton").onclick=logout;$("roleSelect").onchange=updateRoleFields;$("teacherLogoutButton").onclick=teacherLogout;
+document.querySelectorAll(".nav button").forEach(b=>b.onclick=()=>setView(b.dataset.view));
+$("viewAllBtn").onclick=()=>setView("adaptive");$("allSubjectsBtn").onclick=()=>setView("curriculum");$("subjectSelect").onchange=e=>openSubject(e.target.value,"adaptive");$("curriculumFilter").onchange=renderCurriculum;
+$("submitAnswer").onclick=submitAnswer;$("skipQuestion").onclick=skipQuestion;$("explainBtn").onclick=explainCurrent;$("resetProgress").onclick=resetProgress;
+$("saveStudy").onclick=saveStudy;$("resetStudy").onclick=resetStudy;$("openAdaptiveFromNotes").onclick=()=>setView("adaptive");
+$("sendMessage").onclick=sendMessage;$("clearMessages").onclick=clearMessages;
+document.querySelectorAll("[data-notice-filter]").forEach(b=>b.onclick=()=>setNoticeFilter(b.dataset.noticeFilter));
+$("clearNotifications").onclick=clearNotifications;$("openSenderPage").onclick=()=>window.open("notifications.html","_blank");
+$("askAI").onclick=()=>askAI("aiInput");$("modalAskAI").onclick=()=>askAI("modalAiInput");$("newChat").onclick=()=>{user.chats=[];saveUser();renderChats();toast("New chat started")};
+$("expandAI").onclick=()=>{$("aiModal").classList.add("open");renderChats()};$("closeAI").onclick=()=>$("aiModal").classList.remove("open");
+$("lensBtn").onclick=()=>toast("Aspire Lens opened");$("coinsBtn").onclick=()=>toast("Reward balance: "+user.euros+" Euros");$("bellBtn").onclick=()=>{setView("notifications");renderNotifications();refreshSheetNotifications()};
+$("spacePractice").onclick=()=>setView("adaptive");$("startMission").onclick=()=>{missionActive=true;missionCount=0;setView("adaptive");toast("Mission started: complete 5 correct answers")};
+$("downloadReceipt").onclick=()=>toast("Receipt downloaded");$("contactSupport").onclick=()=>{setView("messages");$("messageInput").value="I need support with my learning portal."};
+document.querySelectorAll("[data-toast]").forEach(b=>b.onclick=()=>toast(b.dataset.toast));
+$("answerInput").addEventListener("keydown",e=>{if(e.key==="Enter")submitAnswer()});$("aiInput").addEventListener("keydown",e=>{if(e.key==="Enter")askAI("aiInput")});$("modalAiInput").addEventListener("keydown",e=>{if(e.key==="Enter")askAI("modalAiInput")});$("passwordInput").addEventListener("keydown",e=>{if(e.key==="Enter")auth()});
+window.addEventListener("storage",e=>{if(e.key===NOTIFY)renderNotifications()});
+setInterval(refreshSheetNotifications,15000);
+updateRoleFields();
+restore();// =========================================================================
+// GOOGLE SHEETS LIVE NOTIFICATION FIX (SLAP ANYWHERE INSIDE SCRIPT TAG)
+// =========================================================================
+(() => {
+  // 1. Force override the active webapp link with your current deployment URL
+  const TARGET_WEB_APP_URL = "https://script.google.com/macros/s/AKfycby5jIEdn577Ka-fM28sqkD5V5CiqvO1o28AngQKjBh53-AJ9aKLWg2n42sLeDLFUktS/exec";
+  
+  if (typeof SHEETS_WEB_APP_URL !== "undefined") {
+    window.SHEETS_WEB_APP_URL = TARGET_WEB_APP_URL;
+  }
+
+  /**
+   * Overwrites the native refresh script to handle real fetch operations
+   * instead of broken fallback JSONP callbacks.
+   */
+  window.refreshSheetNotifications = async function() {
+    const listContainer = document.getElementById("notificationList");
+    if (!listContainer) return;
+
+    try {
+      // Use standard fetch API to pull the JSON data array from doGet(e)
+      const response = await fetch(TARGET_WEB_APP_URL);
+      if (!response.ok) throw new Error("Network offline or script app restricted.");
+      
+      const resData = await response.json();
+      
+      if (resData.status === "success" && Array.isArray(resData.data)) {
+        // Save to browser memory to keep state active
+        localStorage.setItem("argus_school_notifications_v1", JSON.stringify(resData.data));
+        
+        // Render it live on screen
+        renderLiveSheetData(resData.data);
+      }
+    } catch (err) {
+      console.error("Argus Sheets Sync Failure:", err);
+      // Fallback gracefully to local mock cache if fetch hits an error
+      const cached = localStorage.getItem("argus_school_notifications_v1");
+      if (cached) {
+        renderLiveSheetData(JSON.parse(cached));
+      } else {
+        listContainer.innerHTML = `<div class="notice-empty">⚠️ Failed to load spreadsheet feeds. Confirm web app access rules.</div>`;
+      }
+    }
+  };
+
+  /**
+   * Cleans and formats raw spreadsheet columns into the DOM UI
+   */
+  function renderLiveSheetData(items) {
+    const listContainer = document.getElementById("notificationList");
+    const countBadge = document.getElementById("noticeCount");
+    if (!listContainer) return;
+
+    // Standardize filter options ('all', 'urgent', 'good', 'unrelated')
+    const currentFilter = window.activeNoticeFilter || "all";
+    const filtered = items.filter(n => currentFilter === "all" || n.category === currentFilter);
+
+    if (countBadge) {
+      countBadge.textContent = items.length;
+    }
+
+    if (!filtered.length) {
+      listContainer.innerHTML = `<div class="notice-empty">No announcements available for category "${currentFilter}".</div>`;
+      return;
+    }
+
+    // Build responsive card modules matching the grid layout styling
+    listContainer.innerHTML = filtered.map(n => {
+      const displayTime = n.time ? new Date(n.time).toLocaleDateString(undefined, {month: 'short', day: 'numeric', hour: '2-digit', minute:'2-digit'}) : "Recent";
+      const badgeType = n.category || "unrelated";
+      
+      return `
+        <div class="notice ${badgeType}">
+          <div class="notice-top">
+            <div class="notice-title" style="font-size:15px; font-weight:700; color:#111827;">${n.title || "Untitled Announcement"}</div>
+            <span class="notice-badge ${badgeType}">${badgeType.toUpperCase()}</span>
+          </div>
+          <div class="small" style="margin: 6px 0; color:#4b5563; line-height:1.5;">${n.message || ""}</div>
+          <small style="color:#9ca3af; font-weight:500;">👤 ${n.sender || "Staff"} &nbsp;•&nbsp; 🎯 ${n.audience || "Students"} &nbsp;•&nbsp; 🕒 ${displayTime}</small>
+        </div>
+      `;
+    }).join("");
+  }
+
+  // Intercept view navigation switches to auto-update when clicking the notification panel
+  document.addEventListener("click", (e) => {
+    const targetButton = e.target.closest("button[data-view]");
+    if (targetButton && targetButton.dataset.view === "notifications") {
+      setTimeout(() => window.refreshSheetNotifications(), 50);
+    }
+  });
+
+  // Intercept configuration filters (All, Urgent, Good, Unrelated pills)
+  document.addEventListener("click", (e) => {
+    const pill = e.target.closest("[data-notice-filter]");
+    if (pill) {
+      window.activeNoticeFilter = pill.dataset.noticeFilter;
+      const cached = localStorage.getItem("argus_school_notifications_v1");
+      if (cached) renderLiveSheetData(JSON.parse(cached));
+    }
+  });
+
+  // Kick off an initial execution on application load
+  setTimeout(() => window.refreshSheetNotifications(), 1000);
+})();
+// =========================================================================
+// =========================================================================
+// CRITICAL GOOGLE SHEETS LIVE OVERRIDE FIX
+// =========================================================================
+(() => {
+  // 1. Force the script to target your live Web App URL
+  const LIVE_WEB_APP_URL = "https://script.google.com/macros/s/AKfycbzVYaiirHMG4Y3cWkqWBXxvrY0LL9ha4JqhtalpVm9h6VghcEBrE9iufZwNhhr_Qg5V/exec";
+  window.SHEWS_WEB_APP_URL = LIVE_WEB_APP_URL; 
+
+  /**
+   * Complete replacement for the internal mock renderer.
+   * This forces the app to update the view directly from your live Google Sheet JSON stream.
+   */
+  window.renderNotifications = async function() {
+    const listContainer = document.getElementById("notificationList");
+    if (!listContainer) return;
+
+    // Show a clean, professional CSS loading block inside your card layouts
+    listContainer.innerHTML = `<div class="notice-empty">↻ Syncing with Google Sheets feed...</div>`;
+
+    try {
+      const response = await fetch(LIVE_WEB_APP_URL);
+      if (!response.ok) throw new Error("Google Apps Script connection offline.");
+      
+      const resData = await response.json();
+      
+      if (resData.status === "success" && Array.isArray(resData.data)) {
+        // Cache to LocalStorage using your original key constant to keep views synced
+        localStorage.setItem("argus_school_notifications_v1", JSON.stringify(resData.data));
+        
+        // Draw the rows live on screen
+        drawLiveSheetUi(resData.data);
+      } else {
+        listContainer.innerHTML = `<div class="notice-empty">⚠️ Spreadsheet responded with invalid payload structure.</div>`;
+      }
+    } catch (err) {
+      console.error("Argus Sync Intercept Exception:", err);
+      // Fallback gracefully to your local storage cache if your server hit a quota wall
+      const cached = localStorage.getItem("argus_school_notifications_v1");
+      if (cached) {
+        drawLiveSheetUi(JSON.parse(cached));
+      } else {
+        listContainer.innerHTML = `<div class="notice-empty">✕ Could not contact Google Sheets. Verify your Web App Deployment parameters.</div>`;
+      }
+    }
+  };
+
+  // Explicitly tie the refresh sequence to follow the exact same pipeline
+  window.refreshSheetNotifications = window.renderNotifications;
+
+  /**
+   * Formats the columns exactly to match your stylesheet layout rules
+   */
+  function drawLiveSheetUi(items) {
+    const listContainer = document.getElementById("notificationList");
+    const countBadge = document.getElementById("noticeCount");
+    if (!listContainer) return;
+
+    // Capture the state of your notice-pill clickers ('all', 'urgent', 'good', 'unrelated')
+    const activeFilter = window.activeNoticeFilter || "all";
+    const filtered = items.filter(n => activeFilter === "all" || String(n.category).toLowerCase() === activeFilter);
+
+    if (countBadge) {
+      countBadge.textContent = items.filter(n => String(n.category).toLowerCase() === "urgent").length || items.length;
+    }
+
+    if (!filtered.length) {
+      listContainer.innerHTML = `<div class="notice-empty">No announcements available for category "${activeFilter}".</div>`;
+      return;
+    }
+
+    // Build standard template markup injecting structural columns matching HEADERS
+    listContainer.innerHTML = filtered.map(n => {
+      const cleanTime = n.time ? new Date(n.time).toLocaleDateString(undefined, {month: 'short', day: 'numeric', hour: '2-digit', minute:'2-digit'}) : "Recent";
+      const badgeType = String(n.category || "unrelated").toLowerCase();
+      
+      return `
+        <div class="notice ${badgeType}">
+          <div class="notice-top">
+            <span class="notice-badge ${badgeType}">${badgeType.toUpperCase()}</span>
+            <small style="color:#9ca3af; font-weight: 500;">🕒 ${cleanTime}</small>
+          </div>
+          <div class="notice-title" style="margin-top: 4px; font-size:15px; font-weight:700; color:#111827;">${n.title || "No Title"}</div>
+          <p class="small" style="color:#4b5563; margin-top:4px; line-height: 1.5;">${n.message || ""}</p>
+          <div style="font-size:11px; color:#9ca3af; margin-top: 8px; font-weight:500; border-top: 1px dashed #e5e7eb; padding-top: 6px;">
+            👤 Sender: <b>${n.sender || "System"}</b> &nbsp;•&nbsp; 🎯 Audience: <b>${n.audience || "All"}</b>
+          </div>
+        </div>
+      `;
+    }).join("");
+  }
+
+  // Hook up immediate navigation interception on the filter pills
+  document.addEventListener("click", (e) => {
+    const pill = e.target.closest("[data-notice-filter]");
+    if (pill) {
+      window.activeNoticeFilter = pill.dataset.noticeFilter;
+      const cached = localStorage.getItem("argus_school_notifications_v1");
+      if (cached) drawLiveSheetUi(JSON.parse(cached));
+    }
+  });
+})();
+// =========================================================================
+</script>
+</body>
+</html>
+
+
+
+
